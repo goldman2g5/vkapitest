@@ -16,7 +16,7 @@ namespace vkapitest.Controllers
     public class UsersController : ControllerBase
     {
         private readonly VkApiTestDbContext _context;
-        private List<User> LastUsers = new List<User>();
+        private static List<User> LastUsers = new List<User>();
 
         private readonly UserGroup adminGroup;
         private readonly UserState activeState;
@@ -36,7 +36,7 @@ namespace vkapitest.Controllers
           {
               return NotFound();
           }
-
+           
             return await _context.Users.ToListAsync();
         }
 
@@ -57,6 +57,27 @@ namespace vkapitest.Controllers
             }
 
             return user;
+        }
+
+        [HttpGet("ids")]
+        public async Task<ActionResult<IEnumerable<User>>> GetUsersByIds([FromQuery] string userIds)
+        {
+            if (string.IsNullOrEmpty(userIds))
+            {
+                return BadRequest("No user IDs provided.");
+            }
+
+            var ids = userIds.Split(',').Select(int.Parse).ToList();
+
+            var users = await _context.Users.Where(u => ids.Contains(u.Id)).ToListAsync();
+
+            if (users.Count != ids.Count)
+            {
+                var missingIds = ids.Except(users.Select(u => u.Id));
+                return NotFound($"Users with the following IDs were not found: {string.Join(", ", missingIds)}");
+            }
+
+            return users;
         }
 
         // PUT: api/Users/5
@@ -116,32 +137,13 @@ namespace vkapitest.Controllers
           }
 
             LastUsers.Add(user);
-            await Task.Delay(5000).ContinueWith(t => LastUsers.Remove(user));
+            new Thread(new ThreadStart(async () => await Task.Delay(5000).ContinueWith(t => LastUsers.Remove(user)))).Start();
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+            
 
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
-        }
-
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            if (_context.Users == null)
-            {
-                return NotFound();
-            }
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
         private bool UserExists(int id)
