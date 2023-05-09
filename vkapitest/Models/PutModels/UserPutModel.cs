@@ -6,13 +6,11 @@ using System.Text.Json.Serialization;
 
 namespace vkapitest.Models
 {
-    public class UserPostModel : User
+    public class UserPutModel : User
     {
         [JsonIgnore]
         new public DateTime? CreatedDate { get; set; }
-
-        [JsonIgnore]
-        new public int? UserStateId { get; set; }
+        
         [JsonIgnore]
         new public virtual UserGroup? UserGroup { get; set; }
 

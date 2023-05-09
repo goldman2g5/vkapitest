@@ -76,23 +76,23 @@ namespace vkapitest.Controllers
 
             var users = await _context.Users.Where(u => ids.Contains(u.Id)).ToListAsync();
 
-            if (users.Count != ids.Count)
-            {
-                var missingIds = ids.Except(users.Select(u => u.Id));
-                return NotFound($"Users with the following IDs were not found: {string.Join(", ", missingIds)}");
-            }
-
             return users;
         }
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(int id, UserPutModel user)
         {
             if (id != user.Id)
             {
                 return BadRequest();
+            }
+
+            User adminUser = await _context.Users.FirstOrDefaultAsync(x => x.UserGroupId == adminGroup.Id);
+            if (user.UserGroupId == adminGroup.Id & adminUser != null & adminUser.Id != user.Id)
+            {
+                return Problem("Admin user already exists");
             }
 
             _context.Entry(user).State = EntityState.Modified;
@@ -120,9 +120,7 @@ namespace vkapitest.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(UserPostModel user)
-        {
-          
-          
+        { 
           if (_context.Users == null)
           {
               return Problem("Entity set 'VkApiTestDbContext.Users'  is null.");
@@ -144,6 +142,9 @@ namespace vkapitest.Controllers
             LastUsers.Add(user);
             new Thread(new ThreadStart(async () => await Task.Delay(5000)
             .ContinueWith(t => LastUsers.Remove(user)))).Start();
+
+            user.CreatedDate = DateTime.Now;
+            user.UserStateId = 1;
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
