@@ -137,7 +137,8 @@ namespace vkapitest.Controllers
           }
 
             LastUsers.Add(user);
-            new Thread(new ThreadStart(async () => await Task.Delay(5000).ContinueWith(t => LastUsers.Remove(user)))).Start();
+            new Thread(new ThreadStart(async () => await Task.Delay(5000)
+            .ContinueWith(t => LastUsers.Remove(user)))).Start();
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using System.Text.Json.Serialization;
 using vkapitest.Models;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,9 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers().AddJsonOptions(x =>
    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
-
-builder.Services.AddDbContext<VkApiTestDbContext>(options => options.UseLazyLoadingProxies().UseNpgsql("Host=localhost;Database=VkApiTestDb;Username=postgres;Password=vagina21519687"));
-
+builder.Services.AddDbContext<VkApiTestDbContext>(options => options.UseLazyLoadingProxies().UseNpgsql("Host=localhost;Port=5432;Database=VkApiTestDb;Username=postgres;Password=vagina21519687"));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
