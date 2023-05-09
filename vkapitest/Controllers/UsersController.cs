@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,19 +12,23 @@ using vkapitest.Models;
 
 namespace vkapitest.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
         private readonly VkApiTestDbContext _context;
+        private readonly ILogger<UsersController> _logger;
+
         private static List<User> LastUsers = new List<User>();
 
         private readonly UserGroup adminGroup;
         private readonly UserState activeState;
 
-        public UsersController(VkApiTestDbContext context)
+        public UsersController(VkApiTestDbContext context, ILogger<UsersController> logger)
         {
             _context = context;
+            _logger = logger;
             adminGroup = _context.UserGroups.FirstOrDefault(x => x.Code == "Admin");
             activeState = _context.UserStates.FirstOrDefault(x => x.Code == "Active");
         }
