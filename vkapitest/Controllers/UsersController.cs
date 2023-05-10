@@ -33,7 +33,6 @@ namespace vkapitest.Controllers
             activeState = _context.UserStates.FirstOrDefault(x => x.Code == "Active");
         }
 
-        // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
@@ -45,7 +44,6 @@ namespace vkapitest.Controllers
             return await _context.Users.ToListAsync();
         }
 
-        // GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
@@ -79,8 +77,6 @@ namespace vkapitest.Controllers
             return users;
         }
 
-        // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, UserPutModel user)
         {
@@ -116,8 +112,6 @@ namespace vkapitest.Controllers
             return NoContent();
         }
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(UserPostModel user)
         { 
@@ -126,7 +120,7 @@ namespace vkapitest.Controllers
               return Problem("Entity set 'VkApiTestDbContext.Users'  is null.");
           }
 
-          if (user.UserGroupId == adminGroup.Id)
+            if (user.UserGroupId == adminGroup.Id)
           {
                 if(_context.Users.Any(x => x.UserGroupId == adminGroup.Id))
                 {
@@ -142,9 +136,6 @@ namespace vkapitest.Controllers
             LastUsers.Add(user);
             new Thread(new ThreadStart(async () => await Task.Delay(5000)
             .ContinueWith(t => LastUsers.Remove(user)))).Start();
-
-            user.CreatedDate = DateTime.Now;
-            user.UserStateId = 1;
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
